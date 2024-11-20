@@ -2,7 +2,7 @@ module Lib
     ( caesarCipher
     , caesarDecipher
     , textToBS
-    , convert
+    , encodeTextToImage
     ) where
 
 import qualified Data.Text as T
@@ -10,6 +10,7 @@ import Data.Char (ord, chr)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.Text.Encoding as TE
+import Data.Bits (testBit)
 
 
 caesarCipher :: T.Text -> Int -> T.Text
@@ -18,8 +19,14 @@ caesarCipher str key = T.map (\c -> chr . (+ key) . ord $ c) str
 caesarDecipher :: T.Text -> Int -> T.Text
 caesarDecipher str key = T.map (\c -> chr . (subtract key) . ord $ c) str
 
-convert :: FilePath -> IO ()
-convert fileName = do
+byteToBits :: Int -> [Int]
+byteToBits byte = [if testBit byte i then 1 else 0 | i <- [7,6..0]]
+
+byteStringToBits :: B.ByteString -> [[Int]]
+byteStringToBits bs = map (byteToBits . fromIntegral) (B.unpack bs)
+
+encodeTextToImage :: FilePath -> IO ()
+encodeTextToImage fileName = do
     imageFile <- BC.readFile fileName
     glitched <- return imageFile
     let glitchedFileName = mconcat ["glitched_", fileName]
