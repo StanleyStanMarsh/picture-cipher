@@ -12,6 +12,7 @@ import qualified Data.ByteString.Char8 as BC
 import qualified Data.Text.Encoding as TE
 import Data.Bits (testBit, setBit, clearBit)
 import Data.Word (Word8)
+import Codec.BMP
 
 textToByteString :: T.Text -> B.ByteString
 textToByteString = TE.encodeUtf8
@@ -46,31 +47,39 @@ replaceBitsInByteString :: B.ByteString -> B.ByteString -> Int -> B.ByteString
 replaceBitsInByteString original replacing n
     | n < 1 || n > 8 = error "Number of bits to replace must be between 1 and 8"
     | B.length replacing * 8 > B.length original * n = error "Not enough bits in original"
-    | otherwise = B.pack $ zipWith replaceNthBits (B.unpack original) (chunksOf n replacingBits)
+    | otherwise = B.pack $ go (B.unpack original) (chunksOf n replacingBits)
   where
     -- Преобразуем байты из replacing в список битов
     replacingBits = concatMap byteToBits (B.unpack replacing)
+
+    -- Рекурсивная функция для замены битов и сохранения неизмененных байтов
+    go [] [] = []  -- Все байты обработаны
+    go (o:os) [] = o : go os []  -- Добавляем оставшиеся байты из original, если нет замены
+    go (o:os) (r:rs) = 
+        let modifiedByte = replaceNthBits o r  -- Заменяем последние n бит
+        in modifiedByte : go os rs  -- Добавляем измененный байт и рекурсивно обрабатываем остаток
+    
     
     -- Заменяет последние n бит байта на новые биты из replacing
     replaceNthBits :: Word8 -> [Int] -> Word8
-    replaceNthBits byte newBits = 
-        foldl (\acc (bit, idx) -> replaceIBit acc idx bit) byte (zip newBits [8-n, 7-n..7])
-
-processFile :: FilePath -> Int -> IO ()
-processFile filePath key = do
-    content <- TIO.readFile filePath
-    let ciphered = caesarCipher content key
-    -- let byteString = textToByteString ciphered
-    -- let bits = byteStringToBits byteString
-    print content
-    print "--------"
-    print ciphered
+    replaceNthBits byte newBits =
+        foldl (\acc (bit, idx) -> replaceIBit acc idx bit) byte (zip newBits [8-n..7])
 
 encodeTextToImage :: FilePath -> IO ()
 encodeTextToImage fileName = do
-    imageFile <- B.readFile fileName
+    Right bmp  <- readBMP fileName
+    let rgba = unpackBMPToRGBA32 bmp
+    let (width, height) = bmpDimensions bmp
+    -- imageFile <- BC.readFile fileName
     textFile <- B.readFile "bio.txt"
     
-    let glitchedFileName = mconcat ["glitched_", fileName]
-    B.writeFile glitchedFileName $ replaceBitsInByteString imageFile textFile 3
+    -- Функция для генерации имени файла
+    let glitchedFileName n = mconcat [show n, "_", fileName]
+    
+    -- Итерация по значениям от 1 до 8
+    mapM_ (\n -> do
+        let modifiedRGBA = B.reverse $ replaceBitsInByteString (B.reverse rgba) textFile n
+        let glitchedBMP = packRGBA32ToBMP width height modifiedRGBA
+        writeBMP (glitchedFileName n) glitchedBMP) [1..8]
+    -- B.writeFile glitchedFileName $ replaceBitsInByteString imageFile textFile 8
     putStrLn "converted"
