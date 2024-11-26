@@ -37,6 +37,25 @@ replaceIBit byte n bit
     | bit == 0  = clearBit byte n
     | otherwise = error "Bit must be 0 or 1"
 
+-- –азбивает список на части длиной k
+chunksOf :: Int -> [a] -> [[a]]
+chunksOf _ [] = []
+chunksOf k xs = take k xs : chunksOf k (drop k xs)
+
+replaceBitsInByteString :: B.ByteString -> B.ByteString -> Int -> B.ByteString
+replaceBitsInByteString original replacing n
+    | n < 1 || n > 8 = error "Number of bits to replace must be between 1 and 8"
+    | B.length replacing * 8 > B.length original * n = error "Not enough bits in original"
+    | otherwise = B.pack $ zipWith replaceNthBits (B.unpack original) (chunksOf n replacingBits)
+  where
+    -- ѕреобразуем байты из replacing в список битов
+    replacingBits = concatMap byteToBits (B.unpack replacing)
+    
+    -- «амен€ет последние n бит байта на новые биты из replacing
+    replaceNthBits :: Word8 -> [Int] -> Word8
+    replaceNthBits byte newBits = 
+        foldl (\acc (bit, idx) -> replaceIBit acc idx bit) byte (zip newBits [8-n, 7-n..7])
+
 processFile :: FilePath -> Int -> IO ()
 processFile filePath key = do
     content <- TIO.readFile filePath
@@ -50,7 +69,8 @@ processFile filePath key = do
 encodeTextToImage :: FilePath -> IO ()
 encodeTextToImage fileName = do
     imageFile <- B.readFile fileName
-    glitched <- return imageFile
+    textFile <- B.readFile "bio.txt"
+    
     let glitchedFileName = mconcat ["glitched_", fileName]
-    B.writeFile glitchedFileName glitched
+    B.writeFile glitchedFileName $ replaceBitsInByteString imageFile textFile 3
     putStrLn "converted"
