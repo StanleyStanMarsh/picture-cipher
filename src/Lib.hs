@@ -78,7 +78,7 @@ encodeTextToImage fileName = do
     
     -- Итерация по значениям от 1 до 8
     mapM_ (\n -> do
-        let modifiedRGBA = B.reverse $ replaceBitsInByteString (B.reverse rgba) textFile n
+        let modifiedRGBA = B.reverse $ replaceBitsInByteString (B.reverse rgba) (TE.encodeUtf8 $ caesarCipher (TE.decodeUtf8 textFile) 3) n
         let glitchedBMP = packRGBA32ToBMP width height modifiedRGBA
         writeBMP (glitchedFileName n) glitchedBMP) [1..8]
     -- B.writeFile glitchedFileName $ replaceBitsInByteString imageFile textFile 8
