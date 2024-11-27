@@ -1,44 +1,39 @@
 module Lib
-    ( caesarCipher
-    , caesarDecipher
-    , encodeTextToImage
+    ( encodeTextToImage
+    , decodeTextsFromImages
     ) where
 
 import qualified Data.Text as T
-import qualified Data.Text.IO as TIO
 import Data.Char (ord, chr)
 import qualified Data.ByteString as B
-import qualified Data.ByteString.Char8 as BC
 import qualified Data.Text.Encoding as TE
 import Data.Bits (testBit, setBit, clearBit)
 import Data.Word (Word8)
 import Codec.BMP
 
-textToByteString :: T.Text -> B.ByteString
-textToByteString = TE.encodeUtf8
-
 caesarCipher :: T.Text -> Int -> T.Text
-caesarCipher str key = T.map (\c -> chr . (+ key) . ord $ c) str
+caesarCipher str key = T.map shiftChar str
+  where
+    shiftChar c
+      | c >= 'a' && c <= 'z' = chr $ (ord c - ord 'a' + key) `mod` 26 + ord 'a'
+      | c >= 'A' && c <= 'Z' = chr $ (ord c - ord 'A' + key) `mod` 26 + ord 'A'
+      | otherwise = c
 
 caesarDecipher :: T.Text -> Int -> T.Text
-caesarDecipher str key = T.map (\c -> chr . (subtract key) . ord $ c) str
+caesarDecipher str key = caesarCipher str (-key)
 
--- ïåðåâîäèò áàéò â ñïèñîê áèòîâ
+-- Ð¿ÐµÑ€ÐµÐ²Ð¾Ð´Ð¸Ñ‚ Ð±Ð°Ð¹Ñ‚ Ð² ÑÐ¿Ð¸ÑÐ¾Ðº Ð±Ð¸Ñ‚Ð¾Ð²
 byteToBits :: Word8 -> [Int]
 byteToBits byte = [if testBit byte i then 1 else 0 | i <- [7,6..0]]
 
--- ïåðåâîäèò ñòðîêó áàéòîâ â ñïèñîê ñî ñïèñêàìè áèòîâ
-byteStringToBits :: B.ByteString -> [[Int]]
-byteStringToBits bs = map (byteToBits . fromIntegral) (B.unpack bs)
-
--- Çàìåíÿåò i-é áèò â áàéòå íà çàäàííûé áèò (0 èëè 1)
+-- Ð—Ð°Ð¼ÐµÐ½ÑÐµÑ‚ i-Ð¹ Ð±Ð¸Ñ‚ Ð² Ð±Ð°Ð¹Ñ‚Ðµ Ð½Ð° Ð·Ð°Ð´Ð°Ð½Ð½Ñ‹Ð¹ Ð±Ð¸Ñ‚ (0 Ð¸Ð»Ð¸ 1)
 replaceIBit :: Word8 -> Int -> Int -> Word8
 replaceIBit byte n bit
     | bit == 1  = setBit byte n
     | bit == 0  = clearBit byte n
     | otherwise = error "Bit must be 0 or 1"
 
--- Ðàçáèâàåò ñïèñîê íà ÷àñòè äëèíîé k
+-- Ð Ð°Ð·Ð±Ð¸Ð²Ð°ÐµÑ‚ ÑÐ¿Ð¸ÑÐ¾Ðº Ð½Ð° Ñ‡Ð°ÑÑ‚Ð¸ Ð´Ð»Ð¸Ð½Ð¾Ð¹ k
 chunksOf :: Int -> [a] -> [[a]]
 chunksOf _ [] = []
 chunksOf k xs = take k xs : chunksOf k (drop k xs)
@@ -49,37 +44,82 @@ replaceBitsInByteString original replacing n
     | B.length replacing * 8 > B.length original * n = error "Not enough bits in original"
     | otherwise = B.pack $ go (B.unpack original) (chunksOf n replacingBits)
   where
-    -- Ïðåîáðàçóåì áàéòû èç replacing â ñïèñîê áèòîâ
+    -- ÐŸÑ€ÐµÐ¾Ð±Ñ€Ð°Ð·ÑƒÐµÐ¼ Ð±Ð°Ð¹Ñ‚Ñ‹ Ð¸Ð· replacing Ð² ÑÐ¿Ð¸ÑÐ¾Ðº Ð±Ð¸Ñ‚Ð¾Ð²
     replacingBits = concatMap byteToBits (B.unpack replacing)
 
-    -- Ðåêóðñèâíàÿ ôóíêöèÿ äëÿ çàìåíû áèòîâ è ñîõðàíåíèÿ íåèçìåíåííûõ áàéòîâ
-    go [] [] = []  -- Âñå áàéòû îáðàáîòàíû
-    go (o:os) [] = o : go os []  -- Äîáàâëÿåì îñòàâøèåñÿ áàéòû èç original, åñëè íåò çàìåíû
+    -- Ð ÐµÐºÑƒÑ€ÑÐ¸Ð²Ð½Ð°Ñ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ñ Ð´Ð»Ñ Ð·Ð°Ð¼ÐµÐ½Ñ‹ Ð±Ð¸Ñ‚Ð¾Ð² Ð¸ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ Ð½ÐµÐ¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð½Ñ‹Ñ… Ð±Ð°Ð¹Ñ‚Ð¾Ð²
+    go [] [] = []  -- Ð’ÑÐµ Ð±Ð°Ð¹Ñ‚Ñ‹ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ð°Ð½Ñ‹
+    go (o:os) [] = o : go os []  -- Ð”Ð¾Ð±Ð°Ð²Ð»ÑÐµÐ¼ Ð¾ÑÑ‚Ð°Ð²ÑˆÐ¸ÐµÑÑ Ð±Ð°Ð¹Ñ‚Ñ‹ Ð¸Ð· original, ÐµÑÐ»Ð¸ Ð½ÐµÑ‚ Ð·Ð°Ð¼ÐµÐ½Ñ‹
     go (o:os) (r:rs) = 
-        let modifiedByte = replaceNthBits o r  -- Çàìåíÿåì ïîñëåäíèå n áèò
-        in modifiedByte : go os rs  -- Äîáàâëÿåì èçìåíåííûé áàéò è ðåêóðñèâíî îáðàáàòûâàåì îñòàòîê
+        let modifiedByte = replaceNthBits o r  -- Ð—Ð°Ð¼ÐµÐ½ÑÐµÐ¼ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ðµ n Ð±Ð¸Ñ‚
+        in modifiedByte : go os rs  -- Ð”Ð¾Ð±Ð°Ð²Ð»ÑÐµÐ¼ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð½Ñ‹Ð¹ Ð±Ð°Ð¹Ñ‚ Ð¸ Ñ€ÐµÐºÑƒÑ€ÑÐ¸Ð²Ð½Ð¾ Ð¾Ð±Ñ€Ð°Ð±Ð°Ñ‚Ñ‹Ð²Ð°ÐµÐ¼ Ð¾ÑÑ‚Ð°Ñ‚Ð¾Ðº
     
     
-    -- Çàìåíÿåò ïîñëåäíèå n áèò áàéòà íà íîâûå áèòû èç replacing
+    -- Ð—Ð°Ð¼ÐµÐ½ÑÐµÑ‚ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ðµ n Ð±Ð¸Ñ‚ Ð±Ð°Ð¹Ñ‚Ð° Ð½Ð° Ð½Ð¾Ð²Ñ‹Ðµ Ð±Ð¸Ñ‚Ñ‹ Ð¸Ð· replacing
     replaceNthBits :: Word8 -> [Int] -> Word8
     replaceNthBits byte newBits =
-        foldl (\acc (bit, idx) -> replaceIBit acc idx bit) byte (zip newBits [8-n..7])
+        foldl (\acc (bit, idx) -> replaceIBit acc idx bit) byte (zip newBits (reverse [0..n-1]))
 
-encodeTextToImage :: FilePath -> IO ()
-encodeTextToImage fileName = do
-    Right bmp  <- readBMP fileName
+encodeTextToImage :: FilePath -> FilePath -> Int -> IO ()
+encodeTextToImage imageFileName textFileName caesarK = do
+    Right bmp <- readBMP imageFileName
     let rgba = unpackBMPToRGBA32 bmp
     let (width, height) = bmpDimensions bmp
-    -- imageFile <- BC.readFile fileName
-    textFile <- B.readFile "bio.txt"
+    textFile <- B.readFile textFileName
     
-    -- Ôóíêöèÿ äëÿ ãåíåðàöèè èìåíè ôàéëà
-    let glitchedFileName n = mconcat [show n, "_", fileName]
+    -- Ð¤ÑƒÐ½ÐºÑ†Ð¸Ñ Ð´Ð»Ñ Ð³ÐµÐ½ÐµÑ€Ð°Ñ†Ð¸Ð¸ Ð¸Ð¼ÐµÐ½Ð¸ Ñ„Ð°Ð¹Ð»Ð°
+    let glitchedFileName n = (show caesarK) ++ "_" ++ (show n) ++ "_" ++ (show $ B.length textFile) ++ "_" ++ imageFileName
+
+    let codedTextFile = TE.encodeUtf8 $ caesarCipher (TE.decodeUtf8 textFile) caesarK
+
+    B.writeFile ("coded_" ++ textFileName) codedTextFile
     
-    -- Èòåðàöèÿ ïî çíà÷åíèÿì îò 1 äî 8
+    -- Ð˜Ñ‚ÐµÑ€Ð°Ñ†Ð¸Ñ Ð¿Ð¾ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸ÑÐ¼ Ð¾Ñ‚ 1 Ð´Ð¾ 8
     mapM_ (\n -> do
-        let modifiedRGBA = B.reverse $ replaceBitsInByteString (B.reverse rgba) (TE.encodeUtf8 $ caesarCipher (TE.decodeUtf8 textFile) 3) n
+        let modifiedRGBA = B.reverse $ replaceBitsInByteString (B.reverse rgba) (codedTextFile) n
         let glitchedBMP = packRGBA32ToBMP width height modifiedRGBA
+        -- print $ B.take 10 $ B.reverse modifiedRGBA
         writeBMP (glitchedFileName n) glitchedBMP) [1..8]
     -- B.writeFile glitchedFileName $ replaceBitsInByteString imageFile textFile 8
     putStrLn "converted"
+
+-- Ð˜Ð·Ð²Ð»ÐµÑ‡ÐµÐ½Ð¸Ðµ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ñ… n Ð±Ð¸Ñ‚ Ð¸Ð· ÐºÐ°Ð¶Ð´Ð¾Ð³Ð¾ Ð±Ð°Ð¹Ñ‚Ð°
+extractBitsFromByte :: Word8 -> Int -> [Int]
+extractBitsFromByte byte n = reverse [if testBit byte i then 1 else 0 | i <- [0..n-1]]
+
+bitsToBytes :: [Int] -> B.ByteString
+bitsToBytes [] = B.empty
+bitsToBytes bits = 
+    B.cons (fromIntegral (foldl (\acc (b, i) -> if b == 1 then setBit acc i else acc) (0 :: Word8) (zip (take 8 bits) [7,6..0])))
+           (bitsToBytes (drop 8 bits))
+
+-- Ð’Ð¾ÑÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½Ð¸Ðµ Ñ‚ÐµÐºÑÑ‚Ð° Ð¸Ð· Ð¸Ð·Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ñ
+decodeTextFromImage :: FilePath -> IO ()
+decodeTextFromImage imageFileName = do
+    -- Ð˜Ð·Ð²Ð»ÐµÐºÐ°ÐµÐ¼ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹ Ð¸Ð· Ð¸Ð¼ÐµÐ½Ð¸ Ñ„Ð°Ð¹Ð»Ð°
+    let [caesarKStr, nStr, textLenStr, _] = T.splitOn (T.pack "_") (T.pack imageFileName)
+    let caesarK = read (T.unpack caesarKStr) :: Int
+    let n = read (T.unpack nStr) :: Int
+    let textLen = read (T.unpack textLenStr) :: Int
+    
+    -- Ð§Ð¸Ñ‚Ð°ÐµÐ¼ Ð¸Ð·Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ðµ
+    Right bmp <- readBMP imageFileName
+    let rgba = B.reverse $ unpackBMPToRGBA32 bmp
+
+    -- Ð˜Ð·Ð²Ð»ÐµÐºÐ°ÐµÐ¼ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ðµ n Ð±Ð¸Ñ‚ Ð¸Ð· ÐºÐ°Ð¶Ð´Ð¾Ð³Ð¾ Ð±Ð°Ð¹Ñ‚Ð°
+    let extractedBits = concatMap (`extractBitsFromByte` n) (B.unpack rgba)
+    
+    -- Ð‘ÐµÑ€ÐµÐ¼ Ð½ÑƒÐ¶Ð½Ð¾Ðµ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð±Ð¸Ñ‚ Ð¸ Ð¿Ñ€ÐµÐ¾Ð±Ñ€Ð°Ð·ÑƒÐµÐ¼ Ð² Ð±Ð°Ð¹Ñ‚Ñ‹
+    let textBytes = bitsToBytes $ take (textLen * 8) extractedBits
+    
+    -- Ð”ÐµÐºÐ¾Ð´Ð¸Ñ€ÑƒÐµÐ¼ Ð±Ð°Ð¹Ñ‚Ñ‹ Ð² Ñ‚ÐµÐºÑÑ‚
+    let decodedText = caesarDecipher (TE.decodeUtf8 textBytes) caesarK
+    
+    -- Ð—Ð°Ð¿Ð¸ÑÑ‹Ð²Ð°ÐµÐ¼ Ð²Ð¾ÑÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½Ð½Ñ‹Ð¹ Ñ‚ÐµÐºÑÑ‚ Ð² Ñ„Ð°Ð¹Ð»
+    let outputFileName = imageFileName ++ "_decoded.txt"
+    B.writeFile outputFileName $ TE.encodeUtf8 decodedText
+    putStrLn $ "Decoded text written to " ++ outputFileName
+
+-- Ð”ÐµÐºÐ¾Ð´Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ñ‚ÐµÐºÑÑ‚Ð° Ð¸Ð· Ð²ÑÐµÑ… Ð¸Ð·Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ð¹
+decodeTextsFromImages :: [FilePath] -> IO ()
+decodeTextsFromImages imageFileNames = mapM_ decodeTextFromImage imageFileNames
