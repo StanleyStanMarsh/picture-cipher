@@ -1,44 +1,111 @@
-# picture-cipher
+# picture-cipher (EN)
 
-Этот проект представляет собой реализацию библиотеки Lib.hs, которая включает функции для шифрования текста методом Шифра Цезаря и последующего сокрытия зашифрованного текста внутри изображения формата .bmp (24-разрядный).
+This project is an implementation of the `Lib.hs` library, which includes functions for encrypting text using the Caesar Cipher method and subsequently hiding the encrypted text within a 24-bit .bmp image.
 
-## Основные возможности
+## Key Features
 
-- Шифрование текста: Пользователь вводит смещение для метода Шифра Цезаря, после чего текст из указанного файла .txt шифруется.
-- Стеганография: Зашифрованный текст внедряется в изображение .bmp. Ключ к шифру сохраняется в имени файла изображения.
-- Расшифровка: Изображение с внедренным текстом может быть декодировано обратно в текстовый файл при помощи ключа, извлеченного из имени файла.
+- **Text Encryption**: The user inputs a shift value for the Caesar Cipher method, after which the text from a specified .txt file is encrypted.
+- **Steganography**: The encrypted text is embedded into a .bmp image. The encryption key is saved in the image file's name.
+- **Decryption**: The image with the embedded text can be decoded back into a text file using the key extracted from the file name.
 
-## Установка и запуск
+## Installation and Execution
 
-Для запуска проекта вам потребуется Haskell-компилятор (например, GHC) и программа сборки stack.
+To run the project, you will need a Haskell compiler (e.g., GHC) and the `stack` build tool.
 
-### Компиляция и выполнение
+### Compilation and Execution
 
-1. Откройте терминал и перейдите в директорию проекта.
-2. Скомпилируйте программу командой:
+1. Open a terminal and navigate to the project directory.
+2. Compile the program using the command:
 ```bash
    stack build
 ```
-3. Запустите полученное исполняемое приложение:
+3. Run the application:
 ```bash
    stack exec picture-cipher-exe
 ```
 
-### Использование программы
+### Using the Program
 
-После запуска программа предложит вам выбрать режим работы:
-- Шифрование и внедрение текста в изображение.
-- Расшифровка текста из изображения.
+After launching, the program will prompt you to choose a mode of operation:
+- Encrypt and embed text into an image.
+- Decrypt text from an image.
 
-В зависимости от выбранного режима вам будет предложено ввести необходимые параметры (смещение для шифрования, путь к исходному текстовому файлу, путь к изображению и т.п.).
+User will be prompted to enter the necessary parameters (shift value for encryption, path to the source text file, path to the image, etc.).
 
-## Структура проекта
+Depending on the number of encoded (last) bits in each byte of the image, the following results are obtained (Fig. 1-8).
 
-- Lib.hs: Библиотека чистых функций для шифрования/дешифрования текста и работы со стеганографией.
-- Main.hs: Основной модуль, который управляет взаимодействием с пользователем и вызывает соответствующие функции из Lib.hs.
-- sample.txt: Пример входного текстового файла.
-- sample.bmp: Пример изображения для внедрения текста.
+![1](https://github.com/user-attachments/assets/d01dcd0a-6eca-4465-8889-15ff67a41758 "Fig. 1")
+![2](https://github.com/user-attachments/assets/a98a0c43-7d9e-41c1-94cb-97b0f820e71c "Fig. 2")
+![3](https://github.com/user-attachments/assets/ab429391-0dda-405c-bff0-bfbae3682078 "Fig. 3")
+![4](https://github.com/user-attachments/assets/5575c24b-9ff3-40bb-9409-23c82c646ce1 "Fig. 4")
+![5](https://github.com/user-attachments/assets/c387dfe5-41e8-4685-bca0-e68dd3699e57 "Fig. 5")
+![6](https://github.com/user-attachments/assets/d560b02a-fa57-4848-a98a-5b73bb3923c2 "Fig. 6")
+![7](https://github.com/user-attachments/assets/78b0c954-2454-4905-bc7c-9fb8af5aa67e "Fig. 7")
+![8](https://github.com/user-attachments/assets/27bb0da1-7c50-4e65-ad1f-f56a257a7710 "Fig. 8")
 
-## Лицензия
+## Project Structure
 
-Этот проект распространяется под лицензией MIT. Вы можете использовать, изменять и распространять код согласно условиям этой лицензии.
+- `Lib.hs`: A library of pure functions for text encryption/decryption and steganography.
+- `Main.hs`: The main module that manages user interaction and calls the corresponding functions from `Lib.hs`.
+- `sample.txt`: An example input text file.
+- `sample.bmp`: An example image for embedding text.
+
+## License
+
+This project is distributed under the MIT License. You are free to use, modify, and distribute the code according to the terms of this license.
+
+# picture-cipher (RU)
+
+Р­С‚РѕС‚ РїСЂРѕРµРєС‚ РїСЂРµРґСЃС‚Р°РІР»СЏРµС‚ СЃРѕР±РѕР№ СЂРµР°Р»РёР·Р°С†РёСЋ Р±РёР±Р»РёРѕС‚РµРєРё Lib.hs, РєРѕС‚РѕСЂР°СЏ РІРєР»СЋС‡Р°РµС‚ С„СѓРЅРєС†РёРё РґР»СЏ С€РёС„СЂРѕРІР°РЅРёСЏ С‚РµРєСЃС‚Р° РјРµС‚РѕРґРѕРј РЁРёС„СЂР° Р¦РµР·Р°СЂСЏ Рё РїРѕСЃР»РµРґСѓСЋС‰РµРіРѕ СЃРѕРєСЂС‹С‚РёСЏ Р·Р°С€РёС„СЂРѕРІР°РЅРЅРѕРіРѕ С‚РµРєСЃС‚Р° РІРЅСѓС‚СЂРё РёР·РѕР±СЂР°Р¶РµРЅРёСЏ С„РѕСЂРјР°С‚Р° .bmp (24-СЂР°Р·СЂСЏРґРЅС‹Р№).
+
+## РћСЃРЅРѕРІРЅС‹Рµ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё
+
+- РЁРёС„СЂРѕРІР°РЅРёРµ С‚РµРєСЃС‚Р°: РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РІРІРѕРґРёС‚ СЃРјРµС‰РµРЅРёРµ РґР»СЏ РјРµС‚РѕРґР° РЁРёС„СЂР° Р¦РµР·Р°СЂСЏ, РїРѕСЃР»Рµ С‡РµРіРѕ С‚РµРєСЃС‚ РёР· СѓРєР°Р·Р°РЅРЅРѕРіРѕ С„Р°Р№Р»Р° .txt С€РёС„СЂСѓРµС‚СЃСЏ.
+- РЎС‚РµРіР°РЅРѕРіСЂР°С„РёСЏ: Р—Р°С€РёС„СЂРѕРІР°РЅРЅС‹Р№ С‚РµРєСЃС‚ РІРЅРµРґСЂСЏРµС‚СЃСЏ РІ РёР·РѕР±СЂР°Р¶РµРЅРёРµ .bmp. РљР»СЋС‡ Рє С€РёС„СЂСѓ СЃРѕС…СЂР°РЅСЏРµС‚СЃСЏ РІ РёРјРµРЅРё С„Р°Р№Р»Р° РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.
+- Р Р°СЃС€РёС„СЂРѕРІРєР°: РР·РѕР±СЂР°Р¶РµРЅРёРµ СЃ РІРЅРµРґСЂРµРЅРЅС‹Рј С‚РµРєСЃС‚РѕРј РјРѕР¶РµС‚ Р±С‹С‚СЊ РґРµРєРѕРґРёСЂРѕРІР°РЅРѕ РѕР±СЂР°С‚РЅРѕ РІ С‚РµРєСЃС‚РѕРІС‹Р№ С„Р°Р№Р» РїСЂРё РїРѕРјРѕС‰Рё РєР»СЋС‡Р°, РёР·РІР»РµС‡РµРЅРЅРѕРіРѕ РёР· РёРјРµРЅРё С„Р°Р№Р»Р°.
+
+## РЈСЃС‚Р°РЅРѕРІРєР° Рё Р·Р°РїСѓСЃРє
+
+Р”Р»СЏ Р·Р°РїСѓСЃРєР° РїСЂРѕРµРєС‚Р° РІР°Рј РїРѕС‚СЂРµР±СѓРµС‚СЃСЏ Haskell-РєРѕРјРїРёР»СЏС‚РѕСЂ (РЅР°РїСЂРёРјРµСЂ, GHC) Рё РїСЂРѕРіСЂР°РјРјР° СЃР±РѕСЂРєРё stack.
+
+### РљРѕРјРїРёР»СЏС†РёСЏ Рё РІС‹РїРѕР»РЅРµРЅРёРµ
+
+1. РћС‚РєСЂРѕР№С‚Рµ С‚РµСЂРјРёРЅР°Р» Рё РїРµСЂРµР№РґРёС‚Рµ РІ РґРёСЂРµРєС‚РѕСЂРёСЋ РїСЂРѕРµРєС‚Р°.
+2. РЎРєРѕРјРїРёР»РёСЂСѓР№С‚Рµ РїСЂРѕРіСЂР°РјРјСѓ РєРѕРјР°РЅРґРѕР№:
+```bash
+   stack build
+```
+3. Р—Р°РїСѓСЃС‚РёС‚Рµ РїРѕР»СѓС‡РµРЅРЅРѕРµ РёСЃРїРѕР»РЅСЏРµРјРѕРµ РїСЂРёР»РѕР¶РµРЅРёРµ:
+```bash
+   stack exec picture-cipher-exe
+```
+
+### РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ РїСЂРѕРіСЂР°РјРјС‹
+
+РџРѕСЃР»Рµ Р·Р°РїСѓСЃРєР° РїСЂРѕРіСЂР°РјРјР° РїСЂРµРґР»РѕР¶РёС‚ РІР°Рј РІС‹Р±СЂР°С‚СЊ СЂРµР¶РёРј СЂР°Р±РѕС‚С‹:
+- РЁРёС„СЂРѕРІР°РЅРёРµ Рё РІРЅРµРґСЂРµРЅРёРµ С‚РµРєСЃС‚Р° РІ РёР·РѕР±СЂР°Р¶РµРЅРёРµ.
+- Р Р°СЃС€РёС„СЂРѕРІРєР° С‚РµРєСЃС‚Р° РёР· РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.
+
+РџРѕР»СЊР·РѕРІР°С‚РµР»СЋ Р±СѓРґРµС‚ РїСЂРµРґР»РѕР¶РµРЅРѕ РІРІРµСЃС‚Рё РЅРµРѕР±С…РѕРґРёРјС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ (СЃРјРµС‰РµРЅРёРµ РґР»СЏ С€РёС„СЂРѕРІР°РЅРёСЏ, РїСѓС‚СЊ Рє РёСЃС…РѕРґРЅРѕРјСѓ С‚РµРєСЃС‚РѕРІРѕРјСѓ С„Р°Р№Р»Сѓ, РїСѓС‚СЊ Рє РёР·РѕР±СЂР°Р¶РµРЅРёСЋ Рё С‚.Рї.).
+
+Р’ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РєРѕР»РёС‡РµСЃС‚РІР° РєРѕРґРёСЂСѓРµРјС‹С… (РїРѕСЃР»РµРґРЅРёС…) Р±РёС‚РѕРІ РІ РєР°Р¶РґРѕРј Р±Р°Р№С‚Рµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РїРѕР»СѓС‡Р°СЋС‚СЃСЏ СЃР»РµРґСѓСЋС‰РёРµ СЂРµР·СѓР»СЊС‚Р°С‚С‹ (Р РёСЃ. 1-8).
+
+![1](https://github.com/user-attachments/assets/d01dcd0a-6eca-4465-8889-15ff67a41758 "Р РёСЃ. 1")
+![2](https://github.com/user-attachments/assets/a98a0c43-7d9e-41c1-94cb-97b0f820e71c "Р РёСЃ. 2")
+![3](https://github.com/user-attachments/assets/ab429391-0dda-405c-bff0-bfbae3682078 "Р РёСЃ. 3")
+![4](https://github.com/user-attachments/assets/5575c24b-9ff3-40bb-9409-23c82c646ce1 "Р РёСЃ. 4")
+![5](https://github.com/user-attachments/assets/c387dfe5-41e8-4685-bca0-e68dd3699e57 "Р РёСЃ. 5")
+![6](https://github.com/user-attachments/assets/d560b02a-fa57-4848-a98a-5b73bb3923c2 "Р РёСЃ. 6")
+![7](https://github.com/user-attachments/assets/78b0c954-2454-4905-bc7c-9fb8af5aa67e "Р РёСЃ. 7")
+![8](https://github.com/user-attachments/assets/27bb0da1-7c50-4e65-ad1f-f56a257a7710 "Р РёСЃ. 8")
+
+## РЎС‚СЂСѓРєС‚СѓСЂР° РїСЂРѕРµРєС‚Р°
+
+- Lib.hs: Р‘РёР±Р»РёРѕС‚РµРєР° С‡РёСЃС‚С‹С… С„СѓРЅРєС†РёР№ РґР»СЏ С€РёС„СЂРѕРІР°РЅРёСЏ/РґРµС€РёС„СЂРѕРІР°РЅРёСЏ С‚РµРєСЃС‚Р° Рё СЂР°Р±РѕС‚С‹ СЃРѕ СЃС‚РµРіР°РЅРѕРіСЂР°С„РёРµР№.
+- Main.hs: РћСЃРЅРѕРІРЅРѕР№ РјРѕРґСѓР»СЊ, РєРѕС‚РѕСЂС‹Р№ СѓРїСЂР°РІР»СЏРµС‚ РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёРµРј СЃ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј Рё РІС‹Р·С‹РІР°РµС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРµ С„СѓРЅРєС†РёРё РёР· Lib.hs.
+- sample.txt: РџСЂРёРјРµСЂ РІС…РѕРґРЅРѕРіРѕ С‚РµРєСЃС‚РѕРІРѕРіРѕ С„Р°Р№Р»Р°.
+- sample.bmp: РџСЂРёРјРµСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РґР»СЏ РІРЅРµРґСЂРµРЅРёСЏ С‚РµРєСЃС‚Р°.
+
+## Р›РёС†РµРЅР·РёСЏ
+
+Р­С‚РѕС‚ РїСЂРѕРµРєС‚ СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµС‚СЃСЏ РїРѕРґ Р»РёС†РµРЅР·РёРµР№ MIT. Р’С‹ РјРѕР¶РµС‚Рµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ, РёР·РјРµРЅСЏС‚СЊ Рё СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏС‚СЊ РєРѕРґ СЃРѕРіР»Р°СЃРЅРѕ СѓСЃР»РѕРІРёСЏРј СЌС‚РѕР№ Р»РёС†РµРЅР·РёРё.
